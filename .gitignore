@@ -18,6 +18,7 @@
 /out/
 
 .code-workspace
+todo.md
 
 # production
 /build
@@ -33,7 +34,8 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env.local
+.env
 
 # vercel
 .vercel
