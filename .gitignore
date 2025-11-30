@@ -17,6 +17,8 @@
 /.next/
 /out/
 
+.code-workspace
+
 # production
 /build
 
