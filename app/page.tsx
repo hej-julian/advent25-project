@@ -161,6 +161,12 @@ export default function Home() {
             >
               🔥 Zum MyDealz Deal
             </button>
+            <button
+              onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSf3ens6gbLvoT9vTzruGW6wf7NVcr-JCf3aUEzEbFpTJtX2VQ/viewform', '_blank')}
+              className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-10 rounded-full shadow-2xl transition duration-300 ease-in-out transform hover:scale-110 border-2 border-blue-300 cursor-pointer"
+            >
+              ➕ Neuen Link melden
+            </button>
           </div>
         </div>
 
@@ -219,8 +225,11 @@ export default function Home() {
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center text-red-200 text-sm">
+        <div className="mt-12 text-center text-red-200 text-sm space-y-2">
           <p>🎅 Frohe Weihnachten & einen schönen Advent! 🎄</p>
+          <p className="text-yellow-300 font-semibold">
+            💝 Shoutout an <span className="text-yellow-400 font-bold">Nik04</span> von MyDealz für die tolle Sammlung! 💝
+          </p>
         </div>
       </div>
     </main>
