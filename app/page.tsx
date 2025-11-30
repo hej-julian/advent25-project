@@ -23,6 +23,7 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
   const toastTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Favoriten aus LocalStorage laden
@@ -214,14 +215,14 @@ export default function Home() {
 
       {/* Header Navigation - mydealz Style */}
       <header className="bg-[#1e1f21] border-b border-gray-700 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-0 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-2 md:py-0 flex items-center justify-between gap-2">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <NextImage src="/mydealz.svg" alt="mydealz" width={141} height={55} className="h-14 w-auto" />
+          <div className="flex items-center gap-2 shrink-0">
+            <NextImage src="/mydealz.svg" alt="mydealz" width={141} height={55} className="h-12 md:h-14 w-auto" />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex gap-3">
             {data.length > 0 && (
               <button
                 onClick={() => setShowModal(true)}
@@ -268,12 +269,98 @@ export default function Home() {
                   "_blank"
                 )
               }
-              className=" hover:bg-[#052f01] text-mydealz-green font-semibold py-2 px-4 rounded-full border border-mydealz-green hover:shadow-lg transition duration-200 cursor-pointer text-sm"
+              className="hover:bg-[#052f01] text-mydealz-green font-semibold py-2 px-4 rounded-full border border-mydealz-green hover:shadow-lg transition duration-200 cursor-pointer text-sm"
             >
               + Link melden
             </button>
           </div>
+
+          {/* Mobile Menu */}
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() =>
+                window.open(
+                  "https://docs.google.com/forms/d/e/1FAIpQLSf3ens6gbLvoT9vTzruGW6wf7NVcr-JCf3aUEzEbFpTJtX2VQ/viewform",
+                  "_blank"
+                )
+              }
+              className="hover:bg-[#052f01] text-mydealz-green font-semibold py-2 px-3 rounded-full border border-mydealz-green hover:shadow-lg transition duration-200 cursor-pointer text-xs"
+            >
+              + Link melden
+            </button>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-2 hover:bg-[#2d2f31] rounded-lg transition duration-200"
+              aria-label="Menü öffnen"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="w-6 h-6 text-white"
+              >
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {menuOpen && (
+          <div className="md:hidden bg-[#2d2d2d] border-t border-gray-700 shadow-lg">
+            <div className="flex flex-col">
+              {data.length > 0 && (
+                <button
+                  onClick={() => {
+                    setShowModal(true);
+                    setMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#3a3a3a] transition duration-200 text-sm font-semibold border-b border-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path d="M9.375 3a1.875 1.875 0 0 0 0 3.75h1.875v4.5H3.375A1.875 1.875 0 0 1 1.5 9.375v-.75c0-1.036.84-1.875 1.875-1.875h3.193A3.375 3.375 0 0 1 12 2.753a3.375 3.375 0 0 1 5.432 3.997h3.943c1.035 0 1.875.84 1.875 1.875v.75c0 1.036-.84 1.875-1.875 1.875H12.75v-4.5h1.875a1.875 1.875 0 1 0-1.875-1.875V6.75h-1.5V4.875C11.25 3.839 10.41 3 9.375 3ZM11.25 12.75H3v6.75a2.25 2.25 0 0 0 2.25 2.25h6v-9ZM12.75 12.75v9h6.75a2.25 2.25 0 0 0 2.25-2.25v-6.75h-9Z" />
+                  </svg>
+                  Alle öffnen
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  window.open(
+                    "https://www.mydealz.de/deals/digitale-adventskalender-und-gewinnspiele-2025-sammeldeal-2687053",
+                    "_blank"
+                  );
+                  setMenuOpen(false);
+                }}
+                className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#3a3a3a] transition duration-200 text-sm font-semibold"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.546 3.75 3.75 0 0 1 3.255 3.718Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Zum Deal
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Banner - Black Friday Style */}
