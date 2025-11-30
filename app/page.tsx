@@ -228,7 +228,27 @@ export default function Home() {
         <div className="mt-12 text-center text-red-200 text-sm space-y-2">
           <p>🎅 Frohe Weihnachten & einen schönen Advent! 🎄</p>
           <p className="text-yellow-300 font-semibold">
-            💝 Shoutout an <span className="text-yellow-400 font-bold">Nik04</span> von MyDealz für die tolle Sammlung! 💝
+            💝 Shoutout an{' '}
+            <a 
+              href="https://www.mydealz.de/profile/Nik04" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-yellow-400 font-bold hover:text-yellow-200 underline transition-colors cursor-pointer"
+            >
+              Nik04
+            </a>{' '}
+            von MyDealz und allen, die bei der Liste mitgeholfen haben! 💝
+          </p>
+          <p className="text-red-100 text-xs mt-4 opacity-75">
+            Erstellt von{' '}
+            <a 
+              href="https://www.mydealz.de/profile/Dealsharer" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="font-semibold hover:text-yellow-300 underline transition-colors cursor-pointer"
+            >
+              Dealsharer
+            </a>
           </p>
         </div>
       </div>
