@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 const SHEET_ID = '17kkvJCb9Bu_7WzPVAogoR4FKFHP5OSFuwVSmnNrICKU';
 const TARGET_GID = '1241575332'; // Die spezifische Tabelle die wir brauchen
@@ -6,6 +7,31 @@ const RANGE = 'A:D'; // NAME, LINK, STARTDATUM, STATUS Spalten
 
 export async function GET() {
   try {
+    // Überprüfe ob die Anfrage von der eigenen Domain kommt
+    const headersList = await headers();
+    const referer = headersList.get('referer');
+    const host = headersList.get('host');
+    
+    // Erlaube nur Anfragen von der eigenen Domain oder localhost
+    if (referer && host) {
+      const refererUrl = new URL(referer);
+      if (refererUrl.host !== host) {
+        return NextResponse.json(
+          { error: 'Zugriff verweigert' },
+          { status: 403 }
+        );
+      }
+    } else if (!referer) {
+      // Blockiere direkte API-Aufrufe ohne Referer (außer in dev mode)
+      const isDev = process.env.NODE_ENV === 'development';
+      if (!isDev) {
+        return NextResponse.json(
+          { error: 'Zugriff verweigert' },
+          { status: 403 }
+        );
+      }
+    }
+    
     const apiKey = process.env.GOOGLE_API_KEY;
     
     if (!apiKey) {
