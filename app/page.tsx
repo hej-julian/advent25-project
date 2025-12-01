@@ -158,6 +158,29 @@ export default function Home() {
     });
   };
 
+  const handleOpenFavorites = () => {
+    setMenuOpen(false);
+
+    // Nur Favoriten öffnen
+    const favoriteLinks = data
+      .filter((item) => favorites.has(item.name) && item.link)
+      .map((item) => {
+        let link = item.link.trim();
+        // Füge https:// hinzu wenn Protokoll fehlt
+        if (!link.startsWith("http://") && !link.startsWith("https://")) {
+          link = "https://" + link;
+        }
+        return link;
+      });
+
+    // Öffne alle Favoriten
+    favoriteLinks.forEach((link) => {
+      window.open(link, "_blank", "noopener,noreferrer");
+    });
+
+    showToast(`🌟 ${favoriteLinks.length} Favoriten geöffnet`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -237,6 +260,22 @@ export default function Home() {
                   <path d="M9.375 3a1.875 1.875 0 0 0 0 3.75h1.875v4.5H3.375A1.875 1.875 0 0 1 1.5 9.375v-.75c0-1.036.84-1.875 1.875-1.875h3.193A3.375 3.375 0 0 1 12 2.753a3.375 3.375 0 0 1 5.432 3.997h3.943c1.035 0 1.875.84 1.875 1.875v.75c0 1.036-.84 1.875-1.875 1.875H12.75v-4.5h1.875a1.875 1.875 0 1 0-1.875-1.875V6.75h-1.5V4.875C11.25 3.839 10.41 3 9.375 3ZM11.25 12.75H3v6.75a2.25 2.25 0 0 0 2.25 2.25h6v-9ZM12.75 12.75v9h6.75a2.25 2.25 0 0 0 2.25-2.25v-6.75h-9Z" />
                 </svg>
                 Alle öffnen
+              </button>
+            )}
+            {favorites.size > 0 && (
+              <button
+                onClick={handleOpenFavorites}
+                className="hover:bg-[#2d2f31] text-white font-semibold py-2 px-4 rounded-full hover:shadow-lg transition duration-200 cursor-pointer text-sm flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-4 h-4 text-[#f97778]"
+                >
+                  <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                </svg>
+                Alle Favs öffnen
               </button>
             )}
             <button
@@ -332,6 +371,22 @@ export default function Home() {
                     <path d="M9.375 3a1.875 1.875 0 0 0 0 3.75h1.875v4.5H3.375A1.875 1.875 0 0 1 1.5 9.375v-.75c0-1.036.84-1.875 1.875-1.875h3.193A3.375 3.375 0 0 1 12 2.753a3.375 3.375 0 0 1 5.432 3.997h3.943c1.035 0 1.875.84 1.875 1.875v.75c0 1.036-.84 1.875-1.875 1.875H12.75v-4.5h1.875a1.875 1.875 0 1 0-1.875-1.875V6.75h-1.5V4.875C11.25 3.839 10.41 3 9.375 3ZM11.25 12.75H3v6.75a2.25 2.25 0 0 0 2.25 2.25h6v-9ZM12.75 12.75v9h6.75a2.25 2.25 0 0 0 2.25-2.25v-6.75h-9Z" />
                   </svg>
                   Alle öffnen
+                </button>
+              )}
+              {favorites.size > 0 && (
+                <button
+                  onClick={handleOpenFavorites}
+                  className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#3a3a3a] transition duration-200 text-sm font-semibold border-b border-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-5 h-5 text-[#f97778]"
+                  >
+                    <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>
+                  Alle Favs öffnen
                 </button>
               )}
               <button
