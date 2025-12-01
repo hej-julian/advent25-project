@@ -21,6 +21,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -160,6 +161,11 @@ export default function Home() {
 
   const handleOpenFavorites = () => {
     setMenuOpen(false);
+    setShowFavoritesModal(true);
+  };
+
+  const handleConfirmOpenFavorites = () => {
+    setShowFavoritesModal(false);
 
     // Nur Favoriten öffnen
     const favoriteLinks = data
@@ -459,6 +465,48 @@ export default function Home() {
                 </button>
                 <button
                   onClick={handleOpenAllLinks}
+                  className="flex-1 bg-mydealz-green hover:bg-[#1e8a00] text-white font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer shadow-md hover:shadow-lg"
+                >
+                  Jetzt öffnen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal für Favoriten-Popup-Hinweis */}
+      {showFavoritesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#1e1f21] rounded-2xl p-8 max-w-md mx-4 shadow-2xl border border-gray-700">
+            <div className="text-center">
+              <div className="text-6xl mb-4">❤️</div>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Alle Favoriten öffnen
+              </h2>
+              <p className="text-gray-300 mb-6">
+                Es werden jetzt{" "}
+                <span className="font-bold text-[#f97778]">
+                  {favorites.size} Favoriten
+                </span>{" "}
+                gleichzeitig geöffnet.
+              </p>
+              <div className="bg-yellow-900/30 border border-yellow-600/50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-300">
+                  ⚠️ <strong>Wichtig:</strong> Bitte erlaube Popups für diese
+                  Seite in deinem Browser, damit alle Links geöffnet werden
+                  können.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowFavoritesModal(false)}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={handleConfirmOpenFavorites}
                   className="flex-1 bg-mydealz-green hover:bg-[#1e8a00] text-white font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer shadow-md hover:shadow-lg"
                 >
                   Jetzt öffnen
