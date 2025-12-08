@@ -96,7 +96,15 @@ export default function Home() {
   useEffect(() => {
     if (rawData.length > 0) {
       const sortedData = [...rawData].sort((a: SheetData, b: SheetData) => {
-        // Ansonsten alphabetisch
+        // Erst nach Kategorie sortieren
+        const categoryA = a.kategorie || "ZZZ"; // Items ohne Kategorie ans Ende
+        const categoryB = b.kategorie || "ZZZ";
+        
+        if (categoryA !== categoryB) {
+          return categoryA.localeCompare(categoryB);
+        }
+        
+        // Innerhalb der gleichen Kategorie alphabetisch nach Name
         return a.name.localeCompare(b.name);
       });
       setData(sortedData);
@@ -327,6 +335,15 @@ export default function Home() {
 
           {/* Mobile Menu */}
           <div className="md:hidden flex items-center gap-2">
+            {validFavoritesCount > 0 && (
+              <button
+                onClick={handleOpenFavorites}
+                className="hover:bg-[#2d2f31] text-[#f97778] font-semibold py-2 px-3 rounded-full border border-[#f97778] hover:shadow-lg transition duration-200 cursor-pointer text-xs whitespace-nowrap"
+                aria-label="Alle Favoriten öffnen"
+              >
+                Alle Fav. öffnen
+              </button>
+            )}
             <button
               onClick={() =>
                 window.open(
@@ -336,7 +353,7 @@ export default function Home() {
               }
               className="hover:bg-[#052f01] text-mydealz-green font-semibold py-2 px-3 rounded-full border border-mydealz-green hover:shadow-lg transition duration-200 cursor-pointer text-xs"
             >
-              + Link melden
+              + Link
             </button>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
