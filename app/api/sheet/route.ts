@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 
 const SHEET_ID = '17kkvJCb9Bu_7WzPVAogoR4FKFHP5OSFuwVSmnNrICKU';
 const TARGET_GID = '1241575332'; // Die spezifische Tabelle die wir brauchen
-const RANGE = 'A:D'; // NAME, LINK, STARTDATUM, STATUS Spalten
+const RANGE = 'A:G'; // NAME, LINK, STARTDATUM, STATUS, KATEGORIE Spalten
 
 export async function GET() {
   try {
@@ -103,7 +103,10 @@ export async function GET() {
           // Versuche zuerst hyperlink, dann formattedValue
           link: values[1]?.hyperlink || values[1]?.formattedValue || '',
           startdatum: values[2]?.formattedValue || '',
-          status: values[3]?.formattedValue || ''
+          status: values[3]?.formattedValue || '',
+          added: values[4]?.formattedValue || '',
+          note: values[5]?.formattedValue || '',
+          kategorie: values[6]?.formattedValue || ''
         };
       });
 

@@ -8,6 +8,9 @@ interface SheetData {
   link: string;
   startdatum: string;
   status: string;
+  added: string;
+  note: string;
+  kategorie: string;
 }
 
 interface Toast {
@@ -93,19 +96,21 @@ export default function Home() {
   useEffect(() => {
     if (rawData.length > 0) {
       const sortedData = [...rawData].sort((a: SheetData, b: SheetData) => {
-        const aIsFav = favorites.has(a.name);
-        const bIsFav = favorites.has(b.name);
-
-        // Favoriten kommen zuerst
-        if (aIsFav && !bIsFav) return -1;
-        if (!aIsFav && bIsFav) return 1;
-
         // Ansonsten alphabetisch
         return a.name.localeCompare(b.name);
       });
       setData(sortedData);
     }
-  }, [favorites, rawData]);
+  }, [rawData]);
+
+  // Berechne die Anzahl der gültigen Favoriten (nur mit Links)
+  const validFavoritesCount = data.filter(
+    (item) => favorites.has(item.name) && item.link && item.link.trim() !== ""
+  ).length;
+
+  // Separate Listen für Favoriten und normale Items
+  const favoriteItems = data.filter((item) => favorites.has(item.name));
+  const normalItems = data.filter((item) => !favorites.has(item.name));
 
   useEffect(() => {
     async function fetchData() {
@@ -268,7 +273,7 @@ export default function Home() {
                 Alle öffnen
               </button>
             )}
-            {favorites.size > 0 && (
+            {validFavoritesCount > 0 && (
               <button
                 onClick={handleOpenFavorites}
                 className="hover:bg-[#2d2f31] text-white font-semibold py-2 px-4 rounded-full hover:shadow-lg transition duration-200 cursor-pointer text-sm flex items-center gap-2"
@@ -379,7 +384,7 @@ export default function Home() {
                   Alle öffnen
                 </button>
               )}
-              {favorites.size > 0 && (
+              {validFavoritesCount > 0 && (
                 <button
                   onClick={handleOpenFavorites}
                   className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#3a3a3a] transition duration-200 text-sm font-semibold border-b border-gray-700"
@@ -392,7 +397,7 @@ export default function Home() {
                   >
                     <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
                   </svg>
-                  Alle Favs öffnen
+                  Alle Favs öffnen ({validFavoritesCount})
                 </button>
               )}
               <button
@@ -487,7 +492,7 @@ export default function Home() {
               <p className="text-gray-300 mb-6">
                 Es werden jetzt{" "}
                 <span className="font-bold text-[#f97778]">
-                  {favorites.size} Favoriten
+                  {validFavoritesCount} Favoriten
                 </span>{" "}
                 gleichzeitig geöffnet.
               </p>
@@ -528,8 +533,110 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-5">
-            {data.map((item, index) => (
+          <>
+            {/* Favoriten Sektion */}
+            {favoriteItems.length > 0 && (
+              <div className="mb-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-7 h-7 text-[#f97778]"
+                    >
+                      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                    </svg>
+                    Meine Favoriten
+                  </h2>
+                  <span className="bg-[#f97778] text-white text-sm font-bold px-3 py-1 rounded-full">
+                    {favoriteItems.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-5">
+                  {favoriteItems.map((item) => (
+                    <div key={item.name} className="group">
+                      {/* Favoriten Kachel */}
+                      <div className="bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 border-[#f97778] relative h-full flex flex-col">
+                        <div className="p-5 flex flex-col grow">
+                          {/* Favoriten Badge */}
+                          <div className="text-center mb-4">
+                            <div className="bg-[#f97778] text-white font-bold text-2xl w-14 h-14 rounded-lg flex items-center justify-center shadow-md mx-auto">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-8 h-8"
+                              >
+                                <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                              </svg>
+                            </div>
+                          </div>
+
+                          {/* Kategorie Label */}
+                          {item.kategorie && (
+                            <div className="text-center mb-3">
+                              <span className="inline-block bg-[#1e1f21] text-gray-300 text-xs font-semibold px-3 py-1 rounded-full border border-gray-600">
+                                {item.kategorie}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Name */}
+                          <h3 className="text-center text-white font-semibold text-sm mb-4 min-h-10 line-clamp-2 grow">
+                            {item.name}
+                          </h3>
+
+                          {/* Buttons */}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                let link = item.link.trim();
+                                if (
+                                  !link.startsWith("http://") &&
+                                  !link.startsWith("https://")
+                                ) {
+                                  link = "https://" + link;
+                                }
+                                window.open(link, "_blank");
+                              }}
+                              className="flex-1 bg-mydealz-green hover:bg-[#1e8a00] text-white font-semibold py-2.5 px-4 rounded-full transition duration-200 shadow-md hover:shadow-lg cursor-pointer"
+                            >
+                              Öffnen
+                            </button>
+                            <button
+                              onClick={() => toggleFavorite(item.name)}
+                              className="flex-1 text-white bg-[#f97778] hover:bg-[#e66667] font-semibold py-2.5 px-4 rounded-full transition duration-200 shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                              aria-label="Aus Favoriten entfernen"
+                              title="Aus Favoriten entfernen"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-5 h-5"
+                              >
+                                <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Alle Türchen Sektion */}
+            <div>
+              {favoriteItems.length > 0 && (
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Alle Türchen
+                </h2>
+              )}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-5">
+                {normalItems.map((item, index) => (
               <div key={index} className="group">
                 {/* Adventskalender Türchen - mydealz Dark Card Style */}
                 <div className="bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-700/50 relative h-full flex flex-col">
@@ -540,6 +647,15 @@ export default function Home() {
                         {index + 1}
                       </div>
                     </div>
+
+                    {/* Kategorie Label */}
+                    {item.kategorie && (
+                      <div className="text-center mb-3">
+                        <span className="inline-block bg-[#1e1f21] text-gray-300 text-xs font-semibold px-3 py-1 rounded-full border border-gray-600">
+                          {item.kategorie}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Name */}
                     <h3 className="text-center text-white font-semibold text-sm mb-4 min-h-10 line-clamp-2 grow">
@@ -612,7 +728,9 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
+              </div>
+            </div>
+          </>
         )}
 
         {/* Footer */}
