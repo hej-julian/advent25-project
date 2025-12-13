@@ -18,6 +18,15 @@ interface Toast {
   message: string;
 }
 
+interface GewinnerData {
+  mydealzName: string;
+  profileLink: string;
+  kalender: string;
+  gewinn: string;
+  wert: string;
+  bilder: string;
+}
+
 export default function Home() {
   const [data, setData] = useState<SheetData[]>([]);
   const [rawData, setRawData] = useState<SheetData[]>([]);
@@ -25,11 +34,21 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+  const [showGewinnerModal, setShowGewinnerModal] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSnow, setShowSnow] = useState(true);
+  const [gewinner, setGewinner] = useState<GewinnerData[]>([]);
+  const [gewinnerLoading, setGewinnerLoading] = useState(false);
   const toastTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  // Prüfe ob heute der 24.12.2025 ist
+  const isChristmasEve2025 = () => {
+    const today = new Date();
+    console.log();
+    return today.getDate() === 24 && today.getMonth() === 11 && today.getFullYear() === 2025;
+  };
 
   // Favoriten aus LocalStorage laden
   useEffect(() => {
@@ -44,6 +63,30 @@ export default function Home() {
       setShowSnow(savedSnowPreference === "true");
     }
   }, []);
+
+  // Gewinner laden Funktion
+  const loadGewinner = async () => {
+    setGewinnerLoading(true);
+    try {
+      const response = await fetch("/api/gewinner");
+      if (response.ok) {
+        const jsonData = await response.json();
+        setGewinner(jsonData);
+      }
+    } catch (err) {
+      console.error("Fehler beim Laden der Gewinner:", err);
+    } finally {
+      setGewinnerLoading(false);
+    }
+  };
+
+  // Gewinner beim Öffnen des Modals laden ODER am 24.12.2025 automatisch
+  useEffect(() => {
+    if (showGewinnerModal || isChristmasEve2025()) {
+      loadGewinner();
+    }
+     
+  }, [showGewinnerModal]);
 
   // Favoriten in LocalStorage speichern
   useEffect(() => {
@@ -464,10 +507,24 @@ export default function Home() {
 
       {/* Banner - Black Friday Style */}
       <div className="bg-linear-to-r from-[#0f0045] to-[#311c79] py-4 border-b border-[#0f0045]">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-left">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
             Adventskalender 2025
           </h2>
+          <button
+            onClick={() => setShowGewinnerModal(true)}
+            className="bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-gray-900 font-bold py-2 px-4 md:px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm md:text-base"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-5 h-5"
+            >
+              <path fillRule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.6 6.73 6.73 0 0 0 2.743 1.346A6.707 6.707 0 0 1 9.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 0 0-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 0 1-1.112-3.173 6.73 6.73 0 0 0 2.743-1.347 6.753 6.753 0 0 0 6.139-5.6.75.75 0 0 0-.585-.858 47.077 47.077 0 0 0-3.07-.543V2.62a.75.75 0 0 0-.658-.744 49.22 49.22 0 0 0-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 0 0-.657.744Zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 0 1 3.16 5.337a45.6 45.6 0 0 1 2.006-.343v.256Zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 0 1-2.863 3.207 6.72 6.72 0 0 0 .857-3.294Z" clipRule="evenodd" />
+            </svg>
+            Gewinner
+          </button>
         </div>
       </div>
 
@@ -555,7 +612,266 @@ export default function Home() {
         </div>
       )}
 
+      {/* Modal für Gewinner */}
+      {showGewinnerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#1e1f21] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700">
+            <div className="sticky top-0 bg-[#1e1f21] border-b border-gray-700 p-6 flex items-center justify-between z-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-8 h-8 text-yellow-500"
+                >
+                  <path fillRule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.6 6.73 6.73 0 0 0 2.743 1.346A6.707 6.707 0 0 1 9.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 0 0-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 0 1-1.112-3.173 6.73 6.73 0 0 0 2.743-1.347 6.753 6.753 0 0 0 6.139-5.6.75.75 0 0 0-.585-.858 47.077 47.077 0 0 0-3.07-.543V2.62a.75.75 0 0 0-.658-.744 49.22 49.22 0 0 0-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 0 0-.657.744Zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 0 1 3.16 5.337a45.6 45.6 0 0 1 2.006-.343v.256Zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 0 1-2.863 3.207 6.72 6.72 0 0 0 .857-3.294Z" clipRule="evenodd" />
+                </svg>
+                Gewinner 2025
+              </h2>
+              <button
+                onClick={() => setShowGewinnerModal(false)}
+                className="p-2 hover:bg-[#2d2f31] rounded-lg transition duration-200"
+                aria-label="Schließen"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  className="w-6 h-6 text-white"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6">
+              {gewinnerLoading ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-mydealz-green border-t-transparent mb-4"></div>
+                  <p className="text-lg text-gray-300 font-semibold">
+                    Gewinner werden geladen...
+                  </p>
+                </div>
+              ) : gewinner.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-8xl mb-4">🎁</div>
+                  <p className="text-xl text-gray-300 font-semibold">
+                    Noch keine Gewinner eingetragen
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {gewinner.map((winner, index) => (
+                    <div
+                      key={index}
+                      className="bg-[#2d2d2d] rounded-xl p-4 md:p-6 hover:shadow-lg transition-all duration-300 border border-gray-700/50"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          <a
+                            href={winner.profileLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xl font-bold text-mydealz-green hover:text-[#1e8a00] transition-colors underline break-all"
+                          >
+                            {winner.mydealzName}
+                          </a>
+                        </div>
+                        <div className="md:ml-auto">
+                          <p className="text-gray-400 text-sm">
+                            <span className="font-semibold text-white">Kalender:</span>{" "}
+                            {winner.kalender}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div className="bg-[#1e1f21] rounded-lg p-3 border border-gray-700">
+                          <h3 className="text-mydealz-green font-semibold mb-1 flex items-center gap-2 text-sm">
+                            <span className="text-lg">🎁</span> Gewinn
+                          </h3>
+                          <p className="text-white text-sm">{winner.gewinn}</p>
+                        </div>
+
+                        <div className="bg-[#1e1f21] rounded-lg p-3 border border-gray-700">
+                          <h3 className="text-mydealz-green font-semibold mb-1 flex items-center gap-2 text-sm">
+                            <span className="text-lg">💰</span> Wert
+                          </h3>
+                          <p className="text-white font-bold text-sm">{winner.wert}</p>
+                        </div>
+                      </div>
+
+                      {winner.bilder && (
+                        <div className="mt-3">
+                          <a
+                            href={winner.bilder}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-mydealz-green hover:bg-[#1e8a00] text-white font-semibold py-2 px-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg text-sm"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+                            </svg>
+                            Nachweis ansehen
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto relative z-10 p-4 md:p-8">
+        {/* Spezielle Ansicht für 24.12.2025 */}
+        {isChristmasEve2025() ? (
+          <div className="space-y-8">
+            {/* Danksagungs-Banner */}
+            <div className="bg-linear-to-r from-[#0f0045] to-[#311c79] rounded-2xl p-8 md:p-12 shadow-2xl border border-[#5a3f8f] text-center">
+              <div className="text-6xl md:text-8xl mb-6">🎄✨🎅</div>
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                Frohe Weihnachten! 🎄
+              </h1>
+              <div className="max-w-3xl mx-auto space-y-4 text-lg md:text-xl text-gray-200">
+                <p>
+                  Der Adventskalender 2025 ist nun zu Ende! Wir möchten uns herzlich bei allen <strong className="text-mydealz-green">Teilnehmern</strong> bedanken, die fleißig die Türchen geöffnet haben.
+                </p>
+                <p>
+                  Ein besonderer Dank geht an alle <strong className="text-mydealz-orange">Helfer und Unterstützer</strong>, die diesen Kalender möglich gemacht haben!
+                </p>
+                <p className="text-yellow-400 font-bold text-2xl mt-6">
+                  🎁 Wir wünschen allen Gewinnern viel Freude mit ihren Preisen! 🎁
+                </p>
+              </div>
+              <div className="mt-8 flex justify-center gap-4">
+                <a
+                  href="https://www.mydealz.de/deals/digitale-adventskalender-und-gewinnspiele-2025-sammeldeal-2687053"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  Zum mydealz Deal
+                </a>
+              </div>
+            </div>
+
+            {/* Gewinner Sektion */}
+            <div className="bg-[#1e1f21] rounded-2xl p-6 md:p-8 shadow-xl border border-gray-700">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-10 h-10 text-yellow-500"
+                >
+                  <path fillRule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.6 6.73 6.73 0 0 0 2.743 1.346A6.707 6.707 0 0 1 9.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 0 0-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 0 1-1.112-3.173 6.73 6.73 0 0 0 2.743-1.347 6.753 6.753 0 0 0 6.139-5.6.75.75 0 0 0-.585-.858 47.077 47.077 0 0 0-3.07-.543V2.62a.75.75 0 0 0-.658-.744 49.22 49.22 0 0 0-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 0 0-.657.744Zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 0 1 3.16 5.337a45.6 45.6 0 0 1 2.006-.343v.256Zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 0 1-2.863 3.207 6.72 6.72 0 0 0 .857-3.294Z" clipRule="evenodd" />
+                </svg>
+                <h2 className="text-3xl md:text-4xl font-bold text-white">
+                  Unsere Gewinner 2025
+                </h2>
+              </div>
+
+              {gewinnerLoading || gewinner.length === 0 ? (
+                <div className="text-center py-12">
+                  {gewinnerLoading ? (
+                    <>
+                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-mydealz-green border-t-transparent mb-4"></div>
+                      <p className="text-lg text-gray-300 font-semibold">
+                        Gewinner werden geladen...
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-8xl mb-4">🎁</div>
+                      <p className="text-xl text-gray-300 font-semibold">
+                        Noch keine Gewinner eingetragen
+                      </p>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {gewinner.map((winner, index) => (
+                    <div
+                      key={index}
+                      className="bg-[#2d2d2d] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-700/50"
+                    >
+                      <div className="p-6">
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <a
+                                href={winner.profileLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-2xl font-bold text-mydealz-green hover:text-[#1e8a00] transition-colors underline"
+                              >
+                                {winner.mydealzName}
+                              </a>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-sm">
+                                <span className="font-semibold text-white">Kalender:</span> {winner.kalender}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="bg-[#1e1f21] rounded-lg p-4 border border-gray-700">
+                            <h3 className="text-mydealz-green font-semibold mb-2 flex items-center gap-2">
+                              <span className="text-xl">🎁</span> Gewinn
+                            </h3>
+                            <p className="text-white">{winner.gewinn}</p>
+                          </div>
+
+                          <div className="bg-[#1e1f21] rounded-lg p-4 border border-gray-700">
+                            <h3 className="text-mydealz-green font-semibold mb-2 flex items-center gap-2">
+                              <span className="text-xl">💰</span> Wert
+                            </h3>
+                            <p className="text-white font-bold">{winner.wert}</p>
+                          </div>
+                        </div>
+
+                        {winner.bilder && (
+                          <div className="mt-4">
+                            <a
+                              href={winner.bilder}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-mydealz-green hover:bg-[#1e8a00] text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-5 h-5"
+                              >
+                                <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+                              </svg>
+                              Nachweis ansehen
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Alte Header-Sektion entfernt - jetzt oben im Header */}
 
         {data.length === 0 ? (
@@ -815,6 +1131,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
 
       {/* Toast Notifications Stack */}
