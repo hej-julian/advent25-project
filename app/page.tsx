@@ -513,7 +513,7 @@ export default function Home() {
           </h2>
           <button
             onClick={() => setShowGewinnerModal(true)}
-            className="bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-gray-900 font-bold py-2 px-4 md:px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm md:text-base"
+            className="bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-gray-900 font-bold py-2 px-4 md:px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-sm md:text-base cursor-pointer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
