@@ -28,6 +28,7 @@ export default function Home() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showSnow, setShowSnow] = useState(true);
   const toastTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Favoriten aus LocalStorage laden
@@ -35,6 +36,12 @@ export default function Home() {
     const savedFavorites = localStorage.getItem("advent-favorites");
     if (savedFavorites) {
       setFavorites(new Set(JSON.parse(savedFavorites)));
+    }
+    
+    // Schnee-Einstellung laden
+    const savedSnowPreference = localStorage.getItem("advent-show-snow");
+    if (savedSnowPreference !== null) {
+      setShowSnow(savedSnowPreference === "true");
     }
   }, []);
 
@@ -90,6 +97,13 @@ export default function Home() {
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 5000);
+  };
+
+  const toggleSnow = () => {
+    const newShowSnow = !showSnow;
+    setShowSnow(newShowSnow);
+    localStorage.setItem("advent-show-snow", newShowSnow.toString());
+    showToast(newShowSnow ? "❄️ Schneefall aktiviert" : "❄️ Schneefall deaktiviert");
   };
 
   // Sortiere Daten basierend auf Favoriten
@@ -232,7 +246,8 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black relative overflow-hidden">
       {/* Schneeflocken Animation */}
-      <div className="snowflakes" aria-hidden="true">
+      {showSnow && (
+        <div className="snowflakes" aria-hidden="true">
         <div className="snowflake">❄</div>
         <div className="snowflake">❅</div>
         <div className="snowflake">❆</div>
@@ -254,6 +269,7 @@ export default function Home() {
         <div className="snowflake">❄</div>
         <div className="snowflake">❅</div>
       </div>
+      )}
 
       {/* Header Navigation - mydealz Style */}
       <header className="bg-[#1e1f21] border-b border-gray-700 sticky top-0 z-40">
@@ -777,6 +793,26 @@ export default function Home() {
                 Dealsharer
               </a>
             </p>
+            <div className="mt-4 pt-4 border-t border-gray-600">
+              <button
+                onClick={toggleSnow}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#2d2d2d] hover:bg-[#3a3a3a] text-white rounded-lg transition duration-200 text-sm font-semibold border border-gray-600"
+              >
+                {showSnow ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                    </svg>
+                    Schneefall ausblenden
+                  </>
+                ) : (
+                  <>
+                    <span className="text-lg">❄️</span>
+                    Schneefall einblenden
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
