@@ -1,0 +1,73 @@
+name: Feature Request
+description: Schlage eine neue Funktion oder Verbesserung vor
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature vorschlagen
+        Hast du eine Idee für eine neue Funktion? Teile sie mit uns!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem oder Bedarf
+      description: Welches Problem würde diese Funktion lösen?
+      placeholder: |
+        z.B. "Es ist frustrierend, dass..."
+        oder "Es wäre hilfreich, wenn..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: loesung
+    attributes:
+      label: Vorgeschlagene Lösung
+      description: Wie stellst du dir die Funktion vor?
+      placeholder: Beschreibe deine Idee so detailliert wie möglich
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternativen
+    attributes:
+      label: Alternative Lösungen (optional)
+      description: Hast du über andere Möglichkeiten nachgedacht?
+      placeholder: Beschreibe alternative Ansätze, falls vorhanden
+
+  - type: dropdown
+    id: prioritaet
+    attributes:
+      label: Wie wichtig ist diese Funktion für dich?
+      options:
+        - Nice to have
+        - Würde die Nutzung verbessern
+        - Sehr wichtig
+        - Kritisch
+    validations:
+      required: true
+
+  - type: textarea
+    id: zusaetzliche_infos
+    attributes:
+      label: Zusätzliche Informationen
+      description: Weitere Details, Mockups, Beispiele, etc.
+      placeholder: |
+        - Links zu ähnlichen Features auf anderen Websites
+        - Mockups oder Skizzen
+        - Weitere Erklärungen
+
+  - type: checkboxes
+    id: beruehrte_bereiche
+    attributes:
+      label: Welche Bereiche würde das Feature betreffen?
+      options:
+        - label: Kalender-Ansicht
+        - label: Favoriten
+        - label: Gewinner-Sektion
+        - label: Navigation/Header
+        - label: Mobile Ansicht
+        - label: Design/UI
+        - label: Performance
+        - label: Sonstiges

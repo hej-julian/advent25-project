@@ -1,0 +1,82 @@
+name: Bug Report
+description: Melde einen Fehler oder ein Problem
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug melden
+        Danke, dass du einen Fehler meldest! Fülle die folgenden Informationen aus.
+
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Beschreibung des Fehlers
+      description: Was funktioniert nicht wie erwartet?
+      placeholder: Beschreibe das Problem so genau wie möglich
+    validations:
+      required: true
+
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zum Reproduzieren
+      description: Wie kann der Fehler nachgestellt werden?
+      placeholder: |
+        1. Gehe zu '...'
+        2. Klicke auf '...'
+        3. Scrolle runter zu '...'
+        4. Fehler tritt auf
+    validations:
+      required: true
+
+  - type: textarea
+    id: erwartetes_verhalten
+    attributes:
+      label: Erwartetes Verhalten
+      description: Was sollte stattdessen passieren?
+      placeholder: Beschreibe, wie es funktionieren sollte
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots (optional)
+      description: Falls hilfreich, füge Screenshots hinzu
+      placeholder: Ziehe Bilder hierher oder füge sie ein
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: In welchem Browser tritt der Fehler auf?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Sonstiger
+    validations:
+      required: true
+
+  - type: dropdown
+    id: geraet
+    attributes:
+      label: Gerät
+      description: Auf welchem Gerät tritt der Fehler auf?
+      options:
+        - Desktop
+        - Tablet
+        - Smartphone
+    validations:
+      required: true
+
+  - type: textarea
+    id: zusaetzliche_infos
+    attributes:
+      label: Zusätzliche Informationen
+      description: Weitere relevante Details
+      placeholder: z.B. Browser-Version, Betriebssystem, etc.
