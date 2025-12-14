@@ -1231,7 +1231,7 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
         {toasts.map((toast) => (
           <div key={toast.id} className="animate-slide-up">
-            <div className="bg-[#2d2d2d] border border-gray-700 rounded-lg shadow-2xl p-4 min-w-[280px]">
+            <div className="bg-[#2d2d2d] border border-gray-700 rounded-lg shadow-2xl p-4 min-w-70">
               <p className="text-white text-sm font-semibold">{toast.message}</p>
             </div>
           </div>
