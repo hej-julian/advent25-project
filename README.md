@@ -35,11 +35,16 @@ Ein interaktiver Adventskalender für die mydealz Community. Die Türchen werden
 2. Erstelle einen neuen API-Key
 3. Aktiviere die Google Sheets API v4 für dein Projekt
 4. Erstelle eine `.env.local` Datei im Projekt-Root
-5. Füge deinen API-Key ein:
+5. Füge deine Umgebungsvariablen ein:
 
 ```env
 GOOGLE_API_KEY=dein_api_key_hier
+PUBLIC_SITE_URL=https://deine-domain.de
 ```
+
+**Umgebungsvariablen:**
+- `GOOGLE_API_KEY` - API-Key für Google Sheets Zugriff (erforderlich)
+- `PUBLIC_SITE_URL` - Deine Domain für Social Share Images (optional, Fallback: vercel domain)
 
 ### Google Sheet Struktur
 
