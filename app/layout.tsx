@@ -28,11 +28,20 @@ export const metadata: Metadata = {
     title: "Adventskalender 2025",
     description: "Erleben Sie die Vorweihnachtszeit mit unserem interaktiven Adventskalender 2025. Jeden Tag eine neue Überraschung!",
     siteName: "Adventskalender 2025",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "Adventskalender 2025 - mydealz Community",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Adventskalender 2025",
     description: "Erleben Sie die Vorweihnachtszeit mit unserem interaktiven Adventskalender 2025. Jeden Tag eine neue Überraschung!",
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,

@@ -1,0 +1,47 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#000000"/>
+  
+  <!-- Purple gradient overlay -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0045;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#311c79;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grad1)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="80" fill="#24a200" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="100" fill="#f97778" opacity="0.1"/>
+  <circle cx="200" cy="500" r="60" fill="#ff6c00" opacity="0.15"/>
+  <circle cx="1000" cy="150" r="70" fill="#24a200" opacity="0.12"/>
+  
+  <!-- Main content -->
+  <text x="600" y="200" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#ffffff" text-anchor="middle">
+    🎄 Adventskalender 2025
+  </text>
+  
+  <text x="600" y="280" font-family="Arial, sans-serif" font-size="32" fill="#cccccc" text-anchor="middle">
+    Interaktiver Kalender für die mydealz Community
+  </text>
+  
+  <!-- Features -->
+  <text x="600" y="360" font-family="Arial, sans-serif" font-size="24" fill="#24a200" text-anchor="middle" font-weight="600">
+    ✨ Favoriten • 🎁 Gewinnspiele • ❄️ Schneefall
+  </text>
+  
+  <!-- Bottom branding -->
+  <rect x="450" y="450" width="300" height="80" rx="40" fill="#1e1f21"/>
+  <text x="600" y="500" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#24a200" text-anchor="middle">
+    mydealz.de
+  </text>
+  
+  <!-- Snowflakes decoration -->
+  <text x="150" y="80" font-size="30" fill="#ffffff" opacity="0.6">❄</text>
+  <text x="350" y="120" font-size="24" fill="#ffffff" opacity="0.5">❄</text>
+  <text x="850" y="90" font-size="28" fill="#ffffff" opacity="0.6">❄</text>
+  <text x="1050" y="130" font-size="22" fill="#ffffff" opacity="0.5">❄</text>
+  <text x="250" y="580" font-size="26" fill="#ffffff" opacity="0.6">❄</text>
+  <text x="950" y="600" font-size="24" fill="#ffffff" opacity="0.5">❄</text>
+</svg>
