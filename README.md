@@ -1,205 +1,183 @@
-# 🎄 Adventskalender 2025
+# Adventskalender 2025
 
-Interaktiver Adventskalender mit Google Sheets Integration im mydealz Dark Theme Design.
+Ein interaktiver Adventskalender für die mydealz Community. Die Türchen werden aus einem Google Sheet geladen und können als Favoriten markiert werden. Das Design orientiert sich am mydealz Dark Theme.
 
-## ✨ Features
+## Features
 
-### Hauptfunktionen
-- 🎁 **Adventskalender-Türchen** mit Kategorisierung und Sortierung
-- ⭐ **Favoriten-System** mit LocalStorage-Persistierung
-- 👁️ **Besuchte-Tracking** mit täglichem Reset (blauer Badge)
-- 🏆 **Gewinner-Anzeige** mit separatem Google Sheet Tab
-- 🎅 **Spezielle Heiligabend-Ansicht** (24.12.2025)
-- ❄️ **Animierte Schneeflocken** mit Toggle-Funktion
-- 📱 **Voll responsive** (Desktop & Mobile)
+**Kalender-Funktionen:**
+- Türchen mit Kategorisierung und automatischer Sortierung
+- Favoriten-System (wird im Browser gespeichert)
+- Besuchte Türchen werden markiert und täglich zurückgesetzt
+- Gewinner-Anzeige aus separatem Google Sheet Tab
+- Spezielle Ansicht am 24.12.2025 mit Danksagung
 
-### UI/UX
-- 🎨 **mydealz Dark Theme** (#000000, #1e1f21, #24a200)
-- 🍞 **Toast-Benachrichtigungen** mit Auto-Stack
-- 🔗 **"Alle öffnen"** & **"Alle Favs öffnen"** Funktionen
-- 🎯 **Sticky Header** mit Navigation
-- 🌟 **Hover-Effekte** und smooth Transitions
+**Design & Bedienung:**
+- mydealz Dark Theme mit original Farben
+- Animierte Schneeflocken (kann ausgeschaltet werden)
+- Toast-Benachrichtigungen für Nutzer-Aktionen
+- "Alle öffnen" und "Alle Favoriten öffnen" Buttons
+- Voll responsive für Desktop und Mobile
 
-### Technologie
-- ⚡ **Next.js 16** mit App Router
-- 🎨 **TailwindCSS** Custom Colors
-- 📝 **TypeScript** strict mode
-- 🔌 **Google Sheets API v4** Integration
-- 💾 **LocalStorage** für User-Präferenzen
+**Technischer Stack:**
+- Next.js 16 mit App Router
+- TailwindCSS für das Styling
+- TypeScript
+- Google Sheets API v4
+- LocalStorage für Favoriten und Einstellungen
 
-## 🚀 Setup
+## Setup
 
-### 1. Abhängigkeiten installieren
-```bash
-npm install
-```
+## Setup
 
-### 2. Google API Key konfigurieren
+### Google API Key einrichten
 
-Erstellen Sie einen API-Key in der [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
-- Aktivieren Sie die **Google Sheets API v4**
-- Erstellen Sie eine `.env.local` Datei im Root-Verzeichnis
-- Fügen Sie Ihren API-Key ein:
+1. Gehe zur [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Erstelle einen neuen API-Key
+3. Aktiviere die Google Sheets API v4 für dein Projekt
+4. Erstelle eine `.env.local` Datei im Projekt-Root
+5. Füge deinen API-Key ein:
 
 ```env
-GOOGLE_API_KEY=Ihr_API_Key_hier
+GOOGLE_API_KEY=dein_api_key_hier
 ```
 
-### 3. Google Sheet einrichten
+### Google Sheet Struktur
 
-Das Projekt verwendet zwei Tabs im Google Sheet:
+Das Projekt arbeitet mit zwei Tabs in einem Google Sheet:
 
-**Haupttab (Türchen):**
-- Spalte A: Name
+**Haupttab für die Türchen:**
+- Spalte A: Name des Türchens
 - Spalte B: Link
 - Spalte C: Startdatum
-- Spalte D: Status (muss "aktiv" sein)
+- Spalte D: Status (muss "aktiv" sein, damit das Türchen angezeigt wird)
 - Spalte E: Kategorie
 
 **Gewinner-Tab:**
-- Spalte A: MyDealz Name
-- Spalte B: Kalender
-- Spalte C: Gewinn
-- Spalte D: Wert (wird automatisch in Euro formatiert)
-- Spalte E: Bilder/Nachweis (Link)
+- Spalte A: MyDealz Benutzername
+- Spalte B: Kalender-Name
+- Spalte C: Gewinn-Beschreibung
+- Spalte D: Wert (wird automatisch als Euro formatiert)
+- Spalte E: Link zu Nachweis-Bildern
 
-Sheet-ID im Code: `17kkvJCb9Bu_7WzPVAogoR4FKFHP5OSFuwVSmnNrICKU`
+Die verwendete Sheet-ID steht in den API-Dateien und kann dort angepasst werden.
 
-### 4. Development starten
+### Installation und Start
 
 ```bash
+# Abhängigkeiten installieren
+npm install
+
+# Development-Server starten
 npm run dev
 ```
 
-Öffnen Sie [http://localhost:3000](http://localhost:3000)
+Die Seite läuft dann auf [http://localhost:3000](http://localhost:3000)
 
-### 5. Production Build
-
+Für Production:
 ```bash
 npm run build
 npm start
 ```
 
-## 📂 Projektstruktur
+## Projektstruktur
 
 ```
 advent25-project/
 ├── app/
 │   ├── api/
-│   │   ├── sheet/route.ts        # Hauptkalender API
-│   │   └── gewinner/route.ts     # Gewinner API
+│   │   ├── sheet/route.ts        # API für Kalender-Daten
+│   │   └── gewinner/route.ts     # API für Gewinner-Daten
 │   ├── gewinner/
-│   │   └── page.tsx              # Gewinner-Standalone-Seite
-│   ├── globals.css               # Animationen & Styles
+│   │   └── page.tsx              # Separate Gewinner-Seite
+│   ├── globals.css               # Animationen und globale Styles
 │   ├── layout.tsx                # Root Layout
-│   └── page.tsx                  # Hauptkalender (1238 Zeilen)
+│   └── page.tsx                  # Hauptkalender-Seite
 ├── public/
 │   └── mydealz.svg               # mydealz Logo
-├── .env.local                    # Google API Key (nicht in Git!)
-├── .gitignore
-├── next.config.ts
-├── package.json
-├── postcss.config.mjs
-├── tailwind.config.ts
-└── tsconfig.json
+├── .env.local                    # API Keys (nicht in Git!)
+└── ...Config-Dateien
 ```
 
-## 🎯 Verwendung
+## Verwendung
 
-### Favoriten hinzufügen
-Klicke auf das Herz-Icon bei einem Türchen → wird in separater Favoriten-Sektion angezeigt
+**Favoriten:**
+Klick auf das Herz-Icon speichert ein Türchen als Favorit. Favoriten werden in einer eigenen Sektion oben angezeigt und bleiben auch nach dem Neuladen der Seite erhalten.
 
-### Türchen als besucht markieren
-Klicke auf "Öffnen" → Türchen bekommt blauen Border + "Besucht"-Badge (Reset täglich)
+**Besuchte Türchen:**
+Wenn du auf "Öffnen" klickst, wird das Türchen als besucht markiert (blauer Rahmen und Badge). Diese Markierung wird jeden Tag automatisch zurückgesetzt.
 
-### Alle Links öffnen
-"Alle öffnen" Button im Header → Öffnet alle Türchen in neuen Tabs (Popup-Blocker erlauben!)
+**Alle Links öffnen:**
+Mit dem "Alle öffnen" Button im Header kannst du alle Türchen auf einmal öffnen. Dein Browser wird dich wahrscheinlich fragen, ob du Popups erlauben möchtest.
 
-### Gewinner anzeigen
-Goldener "Gewinner" Button im Banner → Modal mit allen Gewinnern aus dem Google Sheet
+**Gewinner anzeigen:**
+Der goldene "Gewinner" Button im Banner zeigt alle Gewinner aus dem Google Sheet an.
 
-### Schneefall ausschalten
-Im Footer auf "❄️ Schneefall deaktivieren" klicken
+**Schneefall:**
+Im Footer kann der Schneefall an- und ausgeschaltet werden. Die Einstellung wird gespeichert.
 
-## 🔒 Security Features
+## Technische Details
 
-- ✅ Referer/Host-Validierung für API-Zugriffe
-- ✅ CSRF-Schutz durch Domain-Check
-- ✅ Development/Production-Modi unterscheiden
-- ✅ Keine sensiblen Daten im Frontend
-
-## 🎨 Farben (mydealz Theme)
-
-```css
---black: #000000          /* Background */
---dark-gray: #1e1f21      /* Cards */
---medium-gray: #2d2d2d    /* Hover States */
---green: #24a200          /* CTA Buttons */
---orange: #ff6c00         /* Badges */
---pink: #f97778           /* Favorites */
---purple: #5a3f8f         /* Header Gradient */
---blue: #3b82f6           /* Visited Indicator */
+**Farben (mydealz Theme):**
+```
+Schwarz:        #000000  (Hintergrund)
+Dunkelgrau:     #1e1f21  (Karten)
+Mittelgrau:     #2d2d2d  (Hover)
+Grün:           #24a200  (Call-to-Action)
+Orange:         #ff6c00  (Badges)
+Pink:           #f97778  (Favoriten)
+Lila:           #5a3f8f  (Header)
+Blau:           #3b82f6  (Besucht)
 ```
 
-## 📝 LocalStorage Keys
+**LocalStorage:**
+- `advent-favorites` - Gespeicherte Favoriten
+- `advent-visited` - Heute besuchte Türchen
+- `advent-visited-date` - Datum für den täglichen Reset
+- `advent-show-snow` - Schneefall an/aus
 
-- `advent-favorites` - Favoriten-Liste (persistent)
-- `advent-visited` - Besuchte Türchen (täglicher Reset)
-- `advent-visited-date` - Datum für Reset-Check
-- `advent-show-snow` - Schneefall-Präferenz
+**Sicherheit:**
+Die API-Routen prüfen den Referer/Host, um unerwünschte Zugriffe zu verhindern. Im Development-Modus sind diese Checks lockerer.
 
-## 🎄 Spezielle Features
+## Deployment
 
-### Heiligabend-Modus (24.12.2025)
-- Automatische Gewinner-Anzeige
-- Danksagungs-Banner
-- Keine Türchen-Anzeige mehr
-- Direktlinks zu mydealz Deal
+Das Projekt kann auf allen Node.js-Hosting-Plattformen deployed werden:
+- Vercel (empfohlen)
+- Netlify
+- Eigener Server mit Node.js
 
-### Daily Reset
-Besuchte Türchen werden automatisch um Mitternacht zurückgesetzt via `toDateString()` Vergleich
+Denk daran, die Umgebungsvariable `GOOGLE_API_KEY` auf der Hosting-Plattform zu setzen.
 
-### Toast-System
-- Max. 5 Sekunden Anzeige
-- Stacking-Support (mehrere gleichzeitig)
-- Debounce gegen Duplikate (React Strict Mode)
+## Bekannte Einschränkungen
 
-## 🚀 Deployment
+- Popup-Blocker können das gleichzeitige Öffnen aller Links verhindern
+- Google Sheets API hat Rate Limits (normalerweise kein Problem bei kleinen Projekten)
+- LocalStorage ist auf ca. 5-10 MB pro Domain limitiert
 
-Das Projekt ist deployment-ready für:
-- **Vercel** (empfohlen für Next.js)
-- **Netlify**
-- **Custom Node.js Server** (siehe `server.js`)
+## Credits
 
-Umgebungsvariablen auf der Plattform setzen:
+Erstellt für die mydealz Community im Advent 2025.
+- Design basiert auf mydealz.de
+- Daten werden von der Community gepflegt
+- Besonderer Dank an Nik04 und alle Helfer
+
+## Lizenz
+
+MIT License - siehe [LICENSE](LICENSE) Datei für Details.
+
+**Was du darfst:**
+- Das Projekt für kommerzielle Zwecke nutzen
+- Den Code ändern und anpassen
+- Das Projekt verteilen
+- Privat nutzen
+
+**Was du beachten musst:**
+- Copyright-Hinweis und Lizenztext müssen in Kopien enthalten bleiben
+- Keine Gewährleistung oder Haftung durch die Autoren
+
+Wenn du das Projekt verwendest, wäre ein Link zu diesem Repository nett:
 ```
-GOOGLE_API_KEY=your_key_here
+https://github.com/hej-julian/advent25-project
 ```
-
-## 📊 Performance
-
-- Lazy Loading für Türchen-Grids
-- CSS-only Animationen (GPU-beschleunigt)
-- Optimierte Bilder mit Next.js Image
-- Client-side State Management
-- No-cache für Google Sheets API (immer aktuelle Daten)
-
-## 🐛 Bekannte Limitierungen
-
-- Browser-Popup-Blocker kann "Alle öffnen" blockieren
-- Google Sheets API Rate Limits beachten
-- LocalStorage limitiert auf 5-10 MB
-
-## 👥 Credits
-
-Erstellt für die mydealz Community 2025
-- Design: mydealz.de Farbschema
-- Daten: Community-gepflegte Google Sheets
-- Shoutout: Nik04 und alle Helfer
-
-## 📄 Lizenz
-
-Privates Projekt für mydealz Adventskalender 2025
 
 ## Build
 
