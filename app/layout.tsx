@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: {
     default: "Adventskalender 2025",
     template: "%s | Adventskalender 2025",
