@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   },
   description: "Erleben Sie die Vorweihnachtszeit mit unserem interaktiven Adventskalender 2025. Jeden Tag eine neue Überraschung!",
   keywords: ["Adventskalender", "Weihnachten", "2025", "Advent", "Dezember"],
-  authors: [{ name: "Celltek" }],
-  creator: "Celltek",
-  publisher: "Celltek",
+  authors: [{ name: "hej-julian" }],
+  creator: "hej-julian",
+  publisher: "hej-julian",
   openGraph: {
     type: "website",
     locale: "de_DE",
