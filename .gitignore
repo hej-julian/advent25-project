@@ -18,6 +18,7 @@
 /out/
 
 .code-workspace
+*.code-workspace
 todo.md
 
 # production
