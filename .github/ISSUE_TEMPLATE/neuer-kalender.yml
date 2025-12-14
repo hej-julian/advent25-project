@@ -81,7 +81,7 @@ body:
       placeholder: z.B. LinkedIn, Discord, etc.
 
   - type: textarea
-    id: weitere-infos
+    id: weitere_infos
     attributes:
       label: Weitere Informationen
       description: Zusätzliche Hinweise oder Besonderheiten zum Kalender
@@ -92,7 +92,7 @@ body:
         - Sonstiges?
 
   - type: checkboxes
-    id: bestätigung
+    id: bestaetigung
     attributes:
       label: Bestätigung
       options:
