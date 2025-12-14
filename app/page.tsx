@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import NextImage from "next/image";
 
+// Interface für die Türchen-Daten aus Google Sheets
+// Kategorie wurde später hinzugefügt für die Sortierung
 interface SheetData {
   name: string;
   link: string;
@@ -10,71 +12,104 @@ interface SheetData {
   status: string;
   added: string;
   note: string;
-  kategorie: string;
+  kategorie: string; // julian edit: für die Kategorisierung der Türchen
 }
 
+// Toast-Benachrichtigungen
 interface Toast {
   id: number;
   message: string;
 }
 
+// hej-julian: Gewinner-Daten vom Google Sheet "Gewinner"
 interface GewinnerData {
   mydealzName: string;
   profileLink: string;
   kalender: string;
   gewinn: string;
-  wert: string;
+  wert: string; // wird automatisch in Euro formatiert in der API
   bilder: string;
 }
 
 export default function Home() {
-  const [data, setData] = useState<SheetData[]>([]);
-  const [rawData, setRawData] = useState<SheetData[]>([]);
+  // Hauptdaten-States
+  const [data, setData] = useState<SheetData[]>([]); // gefilterte und sortierte Türchen
+  const [rawData, setRawData] = useState<SheetData[]>([]); // rohe Daten vom API
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
-  const [showGewinnerModal, setShowGewinnerModal] = useState(false);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showSnow, setShowSnow] = useState(true);
+  
+  // Modal-States für verschiedene Popups
+  const [showModal, setShowModal] = useState(false); // "Alle öffnen" Modal
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false); // "Alle Favs öffnen" Modal
+  const [showGewinnerModal, setShowGewinnerModal] = useState(false); // hej-julian added: Gewinner-Modal
+  
+  // User-Interaktionen mit LocalStorage-Persistierung
+  const [favorites, setFavorites] = useState<Set<string>>(new Set()); // Favoriten-Liste
+  const [visited, setVisited] = useState<Set<string>>(new Set()); // besuchte Türchen (täglicher Reset)
+  
+  // UI-States
+  const [toasts, setToasts] = useState<Toast[]>([]); // Toast-Benachrichtigungen Stack
+  const [menuOpen, setMenuOpen] = useState(false); // Mobile Hamburger-Menü
+  const [showSnow, setShowSnow] = useState(true); // Schneefall-Animation Toggle
+  
+  // Gewinner-Daten und Loading-State
   const [gewinner, setGewinner] = useState<GewinnerData[]>([]);
   const [gewinnerLoading, setGewinnerLoading] = useState(false);
+  
+  // Verhindert doppelte Toast-Aufrufe in React Strict Mode
   const toastTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
-  // Prüfe ob heute der 24.12.2025 ist
+  // hej-julian: Spezielle Ansicht für Heiligabend 2025
+  // Am 24.12. werden nur noch Gewinner angezeigt mit Danksagung
   const isChristmasEve2025 = () => {
     const today = new Date();
-    console.log();
+    console.log(); // TODO julian: console.log entfernen vor Production
     return today.getDate() === 24 && today.getMonth() === 11 && today.getFullYear() === 2025;
   };
 
-  // Favoriten aus LocalStorage laden
+  // Initialisierung - lädt alle gespeicherten User-Präferenzen
   useEffect(() => {
+    // Favoriten laden (persistiert über Tage hinweg)
     const savedFavorites = localStorage.getItem("advent-favorites");
     if (savedFavorites) {
       setFavorites(new Set(JSON.parse(savedFavorites)));
     }
     
-    // Schnee-Einstellung laden
+    // Schneefall-Toggle (User kann Schnee ausblenden)
     const savedSnowPreference = localStorage.getItem("advent-show-snow");
     if (savedSnowPreference !== null) {
       setShowSnow(savedSnowPreference === "true");
     }
+
+    // Besuchte Türchen mit automatischem täglichen Reset
+    // Wichtig: Wird jeden Tag zurückgesetzt damit User neue Türchen markieren können
+    const savedVisited = localStorage.getItem("advent-visited");
+    const savedDate = localStorage.getItem("advent-visited-date");
+    const today = new Date().toDateString();
+    
+    if (savedVisited && savedDate === today) {
+      // Heute schon besucht? Dann laden
+      setVisited(new Set(JSON.parse(savedVisited)));
+    } else {
+      // Neuer Tag erkannt - Reset der besuchten Türchen
+      localStorage.removeItem("advent-visited");
+      localStorage.setItem("advent-visited-date", today);
+      setVisited(new Set());
+    }
   }, []);
 
-  // Gewinner laden Funktion
+  // hej-julian: Gewinner-Daten vom Google Sheet laden
+  // Wird automatisch am 24.12.2025 aufgerufen ODER beim Modal-Öffnen
   const loadGewinner = async () => {
     setGewinnerLoading(true);
     try {
       const response = await fetch("/api/gewinner");
       if (response.ok) {
         const jsonData = await response.json();
-        setGewinner(jsonData);
+        setGewinner(jsonData); // julian: Werte werden in der API automatisch in Euro formatiert
       }
     } catch (err) {
-      console.error("Fehler beim Laden der Gewinner:", err);
+      console.error("Fehler beim Laden der Gewinner:", err); // TODO julian: besseres Error-Handling?
     } finally {
       setGewinnerLoading(false);
     }
@@ -97,21 +132,31 @@ export default function Home() {
     }
   }, [favorites]);
 
+  // Besuchte Türchen in LocalStorage speichern
+  useEffect(() => {
+    if (visited.size > 0) {
+      localStorage.setItem("advent-visited", JSON.stringify([...visited]));
+      localStorage.setItem("advent-visited-date", new Date().toDateString());
+    }
+  }, [visited]);
+
+  // Favoriten hinzufügen/entfernen mit Toast-Benachrichtigung
   const toggleFavorite = (name: string) => {
     setFavorites((prev) => {
       const newFavorites = new Set(prev);
       const isAdding = !newFavorites.has(name);
       
+      // Toggle-Logik
       if (newFavorites.has(name)) {
         newFavorites.delete(name);
       } else {
         newFavorites.add(name);
       }
       
-      // Verwende einen eindeutigen Key basierend auf Name und Aktion
+      // Eindeutiger Key verhindert Duplikate bei schnellem Klicken
       const toastKey = `${name}-${isAdding ? 'add' : 'remove'}`;
       
-      // Verhindere doppelte Toasts
+      // hej-julian: Verhindert doppelte Toasts in React Strict Mode (Development)
       if (!toastTimeoutRef.current.has(toastKey)) {
         const message = isAdding 
           ? `⭐ ${name} zu Favoriten hinzugefügt`
@@ -119,7 +164,7 @@ export default function Home() {
         
         showToast(message);
         
-        // Setze einen kurzen Timeout um doppelte Aufrufe zu blockieren
+        // 100ms Debounce gegen Doppel-Klicks
         const timeout = setTimeout(() => {
           toastTimeoutRef.current.delete(toastKey);
         }, 100);
@@ -128,6 +173,16 @@ export default function Home() {
       }
       
       return newFavorites;
+    });
+  };
+
+  // Türchen als besucht markieren (beim Öffnen-Klick)
+  // Zeigt dann ein blaues "Besucht"-Badge - wird täglich zurückgesetzt
+  const markAsVisited = (name: string) => {
+    setVisited((prev) => {
+      const newVisited = new Set(prev);
+      newVisited.add(name);
+      return newVisited;
     });
   };
 
@@ -173,7 +228,8 @@ export default function Home() {
     (item) => favorites.has(item.name) && item.link && item.link.trim() !== ""
   ).length;
 
-  // Separate Listen für Favoriten und normale Items
+  // hej-julian: Listen-Trennung für Favoriten und normale Türchen
+  // Favoriten werden separat oben angezeigt mit rosa Border
   const favoriteItems = data.filter((item) => favorites.has(item.name));
   const normalItems = data.filter((item) => !favorites.has(item.name));
 
@@ -186,7 +242,8 @@ export default function Home() {
         }
         const jsonData = await response.json();
 
-        // Nur aktive Einträge mit Link anzeigen und alphabetisch sortieren
+        // julian: Nur aktive Türchen mit gültigen Links filtern
+        // hej-julian edit: Status muss "aktiv" sein (case-insensitive)
         const filteredData = jsonData.filter(
           (item: SheetData) =>
             item.link &&
@@ -208,52 +265,57 @@ export default function Home() {
     fetchData();
   }, []); // Nur einmal beim Laden
 
+  // hej-julian: "Alle öffnen" - öffnet alle Türchen gleichzeitig in neuen Tabs
+  // Wichtig: Browser-Popup-Blocker muss deaktiviert sein!
   const handleOpenAllLinks = () => {
     setShowModal(false);
 
-    // Methode 1: Alle Links sofort öffnen
+    // julian: Alle Links sammeln und aufbereiten
     const links = data
       .filter((item) => item.link)
       .map((item) => {
         let link = item.link.trim();
-        // Füge https:// hinzu wenn Protokoll fehlt
+        // hej-julian added: https:// prefix hinzufügen falls fehlt
         if (!link.startsWith("http://") && !link.startsWith("https://")) {
           link = "https://" + link;
         }
         return link;
       });
 
-    // Öffne alle Links synchron - Browser kann sie nicht blockieren da direkte User-Interaktion
+    // julian edit: Synchrones Öffnen - funktioniert weil direkte User-Interaktion
+    // Browser kann Popups nicht blockieren da es vom Button-Click kommt
     links.forEach((link) => {
       window.open(link, "_blank", "noopener,noreferrer");
     });
   };
 
+  // hej-julian: Öffnet alle favorisierten Türchen auf einmal
   const handleOpenFavorites = () => {
-    setMenuOpen(false);
-    setShowFavoritesModal(true);
+    setMenuOpen(false); // julian: Mobile-Menü schließen
+    setShowFavoritesModal(true); // hej-julian: Warnung vor Popup-Blocker zeigen
   };
 
   const handleConfirmOpenFavorites = () => {
     setShowFavoritesModal(false);
 
-    // Nur Favoriten öffnen
+    // julian: Nur die favorisierten Türchen filtern und öffnen
     const favoriteLinks = data
       .filter((item) => favorites.has(item.name) && item.link)
       .map((item) => {
         let link = item.link.trim();
-        // Füge https:// hinzu wenn Protokoll fehlt
+        // hej-julian: https:// hinzufügen falls nicht vorhanden
         if (!link.startsWith("http://") && !link.startsWith("https://")) {
           link = "https://" + link;
         }
         return link;
       });
 
-    // Öffne alle Favoriten
+    // julian edit: Alle Favoriten-Links öffnen
     favoriteLinks.forEach((link) => {
       window.open(link, "_blank", "noopener,noreferrer");
     });
 
+    // hej-julian added: Erfolgs-Toast mit Anzahl
     showToast(`🌟 ${favoriteLinks.length} Favoriten geöffnet`);
   };
 
@@ -314,7 +376,8 @@ export default function Home() {
       </div>
       )}
 
-      {/* Header Navigation - mydealz Style */}
+      {/* julian: Sticky Header mit mydealz-Branding und Navigation */}
+      {/* hej-julian edit: Desktop & Mobile Ansichten getrennt für bessere UX */}
       <header className="bg-[#1e1f21] border-b border-gray-700 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-2 md:py-0 flex items-center justify-between gap-2">
           {/* Logo */}
@@ -505,7 +568,8 @@ export default function Home() {
         )}
       </header>
 
-      {/* Banner - Black Friday Style */}
+      {/* hej-julian: Banner mit Titel und Gewinner-Button (Gold-Gradient) */}
+      {/* julian edit: Flex-Layout für responsive Anordnung */}
       <div className="bg-linear-to-r from-[#0f0045] to-[#311c79] py-4 border-b border-[#0f0045]">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4">
           <h2 className="text-2xl md:text-3xl font-bold text-white">
@@ -733,10 +797,11 @@ export default function Home() {
       )}
 
       <div className="max-w-7xl mx-auto relative z-10 p-4 md:p-8">
-        {/* Spezielle Ansicht für 24.12.2025 */}
+        {/* hej-julian: Spezielle Heiligabend-Ansicht - nur Gewinner & Danksagung */}
+        {/* julian edit: Am 24.12.2025 werden keine Türchen mehr angezeigt */}
         {isChristmasEve2025() ? (
           <div className="space-y-8">
-            {/* Danksagungs-Banner */}
+            {/* julian: Danksagungs-Banner mit Weihnachtsgrüßen */}
             <div className="bg-linear-to-r from-[#0f0045] to-[#311c79] rounded-2xl p-8 md:p-12 shadow-2xl border border-[#5a3f8f] text-center">
               <div className="text-6xl md:text-8xl mb-6">🎄✨🎅</div>
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">
@@ -906,7 +971,15 @@ export default function Home() {
                   {favoriteItems.map((item) => (
                     <div key={item.name} className="group">
                       {/* Favoriten Kachel */}
-                      <div className="bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 border-[#f97778] relative h-full flex flex-col">
+                      <div className={`bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 ${visited.has(item.name) ? 'border-blue-500/50' : 'border-[#f97778]'} relative h-full flex flex-col`}>
+                        {/* Besucht Badge - wenn Türchen heute geöffnet wurde */}
+                        {visited.has(item.name) && (
+                          <div className="absolute top-2 right-2 z-10">
+                            <span className="bg-blue-500/90 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                              Besucht
+                            </span>
+                          </div>
+                        )}
                         <div className="p-5 flex flex-col grow">
                           {/* Favoriten Badge */}
                           <div className="text-center mb-4">
@@ -940,6 +1013,7 @@ export default function Home() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => {
+                                markAsVisited(item.name);
                                 let link = item.link.trim();
                                 if (
                                   !link.startsWith("http://") &&
@@ -987,8 +1061,22 @@ export default function Home() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-5">
                 {normalItems.map((item, index) => (
               <div key={index} className="group">
-                {/* Adventskalender Türchen - mydealz Dark Card Style */}
-                <div className="bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-700/50 relative h-full flex flex-col">
+                {/* hej-julian: Adventskalender-Kachel im mydealz Dark Theme */}
+                {/* julian edit: Blaue Border & Badge für besuchte Türchen */}
+                <div className={`bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border relative h-full flex flex-col ${
+                  visited.has(item.name) ? 'border-2 border-blue-500/50' : 'border border-gray-700/50'
+                }`}>
+                  {/* hej-julian added: Besucht-Badge mit Häkchen */}
+                  {visited.has(item.name) && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className="inline-flex items-center gap-1 bg-blue-500/90 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                          <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+                        </svg>
+                        Besucht
+                      </span>
+                    </div>
+                  )}
                   <div className="p-5 flex flex-col grow">
                     {/* Türchen Nummer - Orange Badge */}
                     <div className="text-center mb-4">
@@ -1015,6 +1103,7 @@ export default function Home() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => {
+                          markAsVisited(item.name);
                           let link = item.link.trim();
                           if (
                             !link.startsWith("http://") &&
@@ -1082,7 +1171,8 @@ export default function Home() {
           </>
         )}
 
-        {/* Footer */}
+        {/* hej-julian: Footer mit mydealz-Link und Schnee-Toggle */}
+        {/* julian edit: Fester Abstand zum Content */}
         <div className="mt-12 text-center bg-[#1e1f21] rounded-2xl shadow-md p-6 border border-gray-700">
           <div className="text-gray-300 text-sm space-y-2">
             <p>🎅 Frohe Weihnachten & einen schönen Advent! 🎄</p>
@@ -1135,7 +1225,9 @@ export default function Home() {
         )}
       </div>
 
-      {/* Toast Notifications Stack */}
+      {/* hej-julian: Toast-Benachrichtigungen unten rechts */}
+      {/* julian edit: Stacking-System - mehrere Toasts gleichzeitig möglich */}
+      {/* Auto-Remove nach 5 Sekunden in showToast-Funktion */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
         {toasts.map((toast) => (
           <div key={toast.id} className="animate-slide-up">
@@ -1148,3 +1240,6 @@ export default function Home() {
     </main>
   );
 }
+// hej-julian: Ende der Hauptkomponente
+// TODO julian: Performance-Optimierung für viele Türchen?
+// TODO: Lazy Loading für Bilder wenn wir welche hinzufügen

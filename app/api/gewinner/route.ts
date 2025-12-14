@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
+// hej-julian: API-Route für Gewinner-Daten aus Google Sheets
+// Liest aus dem "Gewinner"-Tab des Spreadsheets
 const SHEET_ID = '17kkvJCb9Bu_7WzPVAogoR4FKFHP5OSFuwVSmnNrICKU';
 const RANGE = 'A:E'; // MyDealz Name, Kalender, Gewinn, Wert, Bilder
 
 export async function GET() {
   try {
-    // Überprüfe ob die Anfrage von der eigenen Domain kommt
+    // Security - nur Anfragen von eigener Domain erlauben
     const headersList = await headers();
     const referer = headersList.get('referer');
     const host = headersList.get('host');
     
-    // Erlaube nur Anfragen von der eigenen Domain oder localhost
+    // Domain-Check gegen CSRF
     if (referer && host) {
       const refererUrl = new URL(referer);
       if (refererUrl.host !== host) {
@@ -21,7 +23,7 @@ export async function GET() {
         );
       }
     } else if (!referer) {
-      // Blockiere direkte API-Aufrufe ohne Referer (außer in dev mode)
+      // Blockiere direkte API-Calls außer in Development
       const isDev = process.env.NODE_ENV === 'development';
       if (!isDev) {
         return NextResponse.json(
@@ -40,7 +42,8 @@ export async function GET() {
       );
     }
 
-    // Metadaten abrufen um die Tabelle "Gewinner" zu finden
+    // Erst Metadaten holen um "Gewinner"-Tab zu finden
+    // Case-insensitive Suche nach Tab-Namen
     const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${apiKey}`;
     const metaResponse = await fetch(metaUrl, { cache: 'no-store' });
     
@@ -93,15 +96,17 @@ export async function GET() {
         const mydealzName = values[0]?.formattedValue || '';
         const rawWert = values[3]?.formattedValue || '';
         
-        // Formatiere Wert in Euro falls es eine Zahl ist
+        // hej-julian: Automatische Euro-Formatierung für Zahlen
+        // Wenn Wert nur eine Zahl ist, wird sie in "XX,XX €" umgewandelt
         let formattedWert = rawWert;
         if (rawWert && !rawWert.toLowerCase().includes('€') && !rawWert.toLowerCase().includes('euro')) {
-          // Versuche die Zahl zu extrahieren
+          // Extrahiere Zahl aus String (mit Komma oder Punkt)
           const numMatch = rawWert.match(/[\d.,]+/);
           if (numMatch) {
-            const numStr = numMatch[0].replace(',', '.');
+            const numStr = numMatch[0].replace(',', '.'); // Komma zu Punkt für parseFloat
             const num = parseFloat(numStr);
             if (!isNaN(num)) {
+              // Formatierung mit 2 Nachkommastellen und Euro-Symbol
               formattedWert = `${num.toFixed(2).replace('.', ',')} €`;
             }
           }
@@ -109,20 +114,25 @@ export async function GET() {
         
         return {
           mydealzName,
-          profileLink: mydealzName ? `https://www.mydealz.de/profile/${mydealzName}` : '',
+          profileLink: mydealzName ? `https://www.mydealz.de/profile/${mydealzName}` : '', // Auto-generierter Profil-Link
           kalender: values[1]?.formattedValue || '',
-          gewinn: values[2]?.formattedValue || '',
-          wert: formattedWert,
-          bilder: values[4]?.hyperlink || values[4]?.formattedValue || ''
+          gewinn: values[2]?.formattedValue || '', // Was wurde gewonnen
+          wert: formattedWert, // Automatisch in Euro formatiert
+          bilder: values[4]?.hyperlink || values[4]?.formattedValue || '' // Nachweis-Bilder (Hyperlink bevorzugt)
         };
       })
-      .filter((item: { mydealzName: string }) => item.mydealzName.trim() !== '');
+      .filter((item: { mydealzName: string; gewinn: string }) => 
+        item.mydealzName.trim() !== '' && item.gewinn.trim() !== ''
+      ); // hej-julian: Nur Gewinner mit Name UND Gewinn anzeigen
 
     return NextResponse.json(structuredData);
   } catch (error) {
+    // hej-julian: Error-Handling für Google Sheets API Fehler
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Fehler beim Laden der Daten' },
       { status: 500 }
     );
   }
 }
+// julian: Ende der Gewinner-API Route
+// TODO: Caching implementieren? Gewinner ändern sich selten
