@@ -44,7 +44,7 @@ PUBLIC_SITE_URL=https://deine-domain.de
 
 **Umgebungsvariablen:**
 - `GOOGLE_API_KEY` - API-Key für Google Sheets Zugriff (erforderlich)
-- `PUBLIC_SITE_URL` - Deine Domain für Social Share Images (optional, Fallback: vercel domain)
+- `PUBLIC_SITE_URL` - Deine Domain für Social Share Images (optional, Fallback: localhost:3000)
 
 ### Google Sheet Struktur
 
