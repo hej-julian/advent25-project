@@ -1,5 +1,7 @@
 # Adventskalender 2025
 
+> **Neuen Kalender hinzufügen?** Nutze unser [GitHub Issue Template](https://github.com/hej-julian/advent25-project/issues/new/choose) um einen neuen Adventskalender zur Liste hinzuzufügen!
+
 Ein interaktiver Adventskalender für die mydealz Community. Die Türchen werden aus einem Google Sheet geladen und können als Favoriten markiert werden. Das Design orientiert sich am mydealz Dark Theme.
 
 ## Features
