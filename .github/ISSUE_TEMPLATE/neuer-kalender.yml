@@ -1,0 +1,101 @@
+name: Neuer Kalender
+description: Einen neuen Adventskalender zur Liste hinzufügen
+title: "[Kalender] "
+labels: ["kalender", "neu"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Neuen Kalender hinzufügen
+        Fülle die folgenden Informationen aus, um einen neuen Adventskalender zur Liste hinzuzufügen.
+
+  - type: input
+    id: url
+    attributes:
+      label: URL des Kalenders
+      description: Die vollständige URL zum Adventskalender
+      placeholder: https://beispiel.de/adventskalender
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kategorie
+    attributes:
+      label: Kategorie des Kalenders
+      description: Wähle die passende Kategorie aus
+      options:
+        - Gewinnspiel
+        - Rabatt
+        - Gutschein
+        - Freebie
+        - Bundle
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: input
+    id: kategorie-custom
+    attributes:
+      label: Eigene Kategorie (optional)
+      description: Falls "Sonstiges" ausgewählt wurde, gib hier die Kategorie an
+      placeholder: z.B. Event, Aktion, etc.
+
+  - type: input
+    id: startdatum
+    attributes:
+      label: Wann startet der Kalender?
+      description: Startdatum des Kalenders
+      placeholder: 01.12.2025
+    validations:
+      required: true
+
+  - type: input
+    id: enddatum
+    attributes:
+      label: Wann endet der Kalender?
+      description: Enddatum des Kalenders
+      placeholder: 24.12.2025
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: plattform
+    attributes:
+      label: Wo findet der Kalender statt?
+      description: Wähle alle zutreffenden Plattformen aus
+      options:
+        - label: Instagram
+        - label: Twitter
+        - label: Facebook
+        - label: Website
+        - label: App
+        - label: TikTok
+        - label: YouTube
+
+  - type: input
+    id: plattform-sonstiges
+    attributes:
+      label: Sonstige Plattform
+      description: Falls eine andere Plattform, bitte hier angeben
+      placeholder: z.B. LinkedIn, Discord, etc.
+
+  - type: textarea
+    id: weitere-infos
+    attributes:
+      label: Weitere Informationen
+      description: Zusätzliche Hinweise oder Besonderheiten zum Kalender
+      placeholder: |
+        - Besondere Preise?
+        - Teilnahmebedingungen?
+        - Beschränkungen?
+        - Sonstiges?
+
+  - type: checkboxes
+    id: bestätigung
+    attributes:
+      label: Bestätigung
+      options:
+        - label: Ich habe geprüft, dass dieser Kalender noch nicht in der Liste vorhanden ist
+          required: true
+        - label: Der Kalender ist aktuell aktiv und erreichbar
+          required: true
