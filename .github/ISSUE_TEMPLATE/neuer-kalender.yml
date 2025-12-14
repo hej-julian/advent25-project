@@ -71,6 +71,7 @@ body:
         - label: App
         - label: TikTok
         - label: YouTube
+        - label: Sonstiges
 
   - type: input
     id: plattform-sonstiges
