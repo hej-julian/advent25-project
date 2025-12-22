@@ -68,7 +68,7 @@ export default function Home() {
   const isChristmasEve2025 = () => {
     const today = new Date();
     console.log(); // TODO julian: console.log entfernen vor Production
-    return today.getDate() === 22 && today.getMonth() === 11 && today.getFullYear() === 2025;
+    return today.getDate() === 24 && today.getMonth() === 11 && today.getFullYear() === 2025;
   };
 
   // Initialisierung - lädt alle gespeicherten User-Präferenzen
