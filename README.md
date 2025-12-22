@@ -12,6 +12,8 @@ Ein interaktiver Adventskalender für die mydealz Community. Die Türchen werden
 - Besuchte Türchen werden markiert und täglich zurückgesetzt
 - Gewinner-Anzeige aus separatem Google Sheet Tab
 - Spezielle Ansicht am 24.12.2025 mit Danksagung
+- **Kalender mit Laufzeit:** Kalender die über den 24.12. hinausgehen werden weiterhin angezeigt
+- Stand-Datum aus Google Sheet wird im Footer angezeigt
 
 **Design & Bedienung:**
 - mydealz Dark Theme mit original Farben
@@ -57,7 +59,14 @@ Das Projekt arbeitet mit zwei Tabs in einem Google Sheet:
 - Spalte B: Link
 - Spalte C: Startdatum
 - Spalte D: Status (muss "aktiv" sein, damit das Türchen angezeigt wird)
-- Spalte E: Kategorie
+- Spalte E: Hinzugefügt-Datum
+- Spalte F: Kommentar/Notiz
+- Spalte G: Kategorie
+- Spalte H: Läuft bis (Datum im Format DD.MM.YYYY - optional)
+
+**Sonder-Eintrag "Stand":**
+- Ein Eintrag mit Name="Stand" wird für das Stand-Datum verwendet
+- Das Link-Feld dieses Eintrags wird im Footer als letztes Update-Datum angezeigt
 
 **Gewinner-Tab:**
 - Spalte A: MyDealz Benutzername
@@ -121,6 +130,13 @@ Der goldene "Gewinner" Button im Banner zeigt alle Gewinner aus dem Google Sheet
 
 **Schneefall:**
 Im Footer kann der Schneefall an- und ausgeschaltet werden. Die Einstellung wird gespeichert.
+
+**Am 24.12.2025:**
+Am Heiligabend wird eine spezielle Ansicht angezeigt mit:
+- Danksagung und Weihnachtsgrüßen
+- Liste aller Gewinner
+- Kalender die über den 24.12. hinausgehen (basierend auf "Läuft bis" Feld)
+- Button zum Scrollen zu den noch laufenden Kalendern
 
 ## Technische Details
 
