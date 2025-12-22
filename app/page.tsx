@@ -10,9 +10,10 @@ interface SheetData {
   link: string;
   startdatum: string;
   status: string;
-  added: string;
-  note: string;
+  added: string; // Hinzugefügt-Datum
+  note: string; // Kommentar
   kategorie: string; // julian edit: für die Kategorisierung der Türchen
+  laueftBis: string; // bis wann der Kalender gültig ist
 }
 
 // Toast-Benachrichtigungen
@@ -56,6 +57,9 @@ export default function Home() {
   const [gewinner, setGewinner] = useState<GewinnerData[]>([]);
   const [gewinnerLoading, setGewinnerLoading] = useState(false);
   
+  // Stand-Datum aus dem Sheet
+  const [standDatum, setStandDatum] = useState<string>("");
+  
   // Verhindert doppelte Toast-Aufrufe in React Strict Mode
   const toastTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
@@ -64,7 +68,7 @@ export default function Home() {
   const isChristmasEve2025 = () => {
     const today = new Date();
     console.log(); // TODO julian: console.log entfernen vor Production
-    return today.getDate() === 24 && today.getMonth() === 11 && today.getFullYear() === 2025;
+    return today.getDate() === 22 && today.getMonth() === 11 && today.getFullYear() === 2025;
   };
 
   // Initialisierung - lädt alle gespeicherten User-Präferenzen
@@ -242,14 +246,65 @@ export default function Home() {
         }
         const jsonData = await response.json();
 
+        // Stand-Datum extrahieren (Item mit name="Stand")
+        const standItem = jsonData.find((item: SheetData) => item.name === "Stand");
+        if (standItem && standItem.link) {
+          setStandDatum(standItem.link);
+        }
+
         // julian: Nur aktive Türchen mit gültigen Links filtern
         // hej-julian edit: Status muss "aktiv" sein (case-insensitive)
+        // Nach dem 24.12: Kalender werden angezeigt wenn sie noch gültig sind (laueftBis)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Am 24.12. in der Heiligabend-Ansicht: nur Kalender die NACH dem 24.12. laufen
+        const christmas2025 = new Date(2025, 11, 24); // 24.12.2025
+        christmas2025.setHours(23, 59, 59, 999);
+        const isChristmas = isChristmasEve2025();
+        
         const filteredData = jsonData.filter(
-          (item: SheetData) =>
-            item.link &&
-            item.link.trim() !== "" &&
-            item.status &&
-            item.status.toLowerCase() === "aktiv"
+          (item: SheetData) => {
+            // Stand-Item herausfiltern (wird im Footer angezeigt)
+            if (item.name === "Stand") {
+              return false;
+            }
+            
+            // Basis-Filter: Link und Status müssen vorhanden sein
+            if (!item.link || item.link.trim() === "" || !item.status || item.status.toLowerCase() !== "aktiv") {
+              return false;
+            }
+            
+            // Prüfen ob "Läuft bis" Datum gesetzt ist und noch gültig
+            if (item.laueftBis && item.laueftBis.trim() !== "") {
+              try {
+                // Deutsches Datumsformat parsen (z.B. "31.12.2025")
+                const parts = item.laueftBis.trim().split(".");
+                if (parts.length === 3) {
+                  const laueftBisDate = new Date(
+                    parseInt(parts[2]), // Jahr
+                    parseInt(parts[1]) - 1, // Monat (0-basiert)
+                    parseInt(parts[0]) // Tag
+                  );
+                  laueftBisDate.setHours(23, 59, 59, 999); // Ende des Tages
+                  
+                  // Am 24.12.: nur Kalender die über den 24.12. hinausgehen
+                  if (isChristmas) {
+                    return laueftBisDate > christmas2025;
+                  }
+                  
+                  // Sonst: nur anzeigen wenn noch nicht abgelaufen
+                  return laueftBisDate >= today;
+                }
+              } catch (e) {
+                // Bei Parsing-Fehler trotzdem anzeigen
+                console.warn("Fehler beim Parsen von laueftBis:", item.laueftBis, e);
+              }
+            }
+            
+            // Wenn kein "Läuft bis" gesetzt ist, trotzdem anzeigen
+            return true;
+          }
         );
 
         setRawData(filteredData);
@@ -827,6 +882,15 @@ export default function Home() {
                 >
                   Zum mydealz Deal
                 </a>
+                <button
+                  onClick={() => {
+                    const kalenderSektion = document.getElementById('kalender-sektion');
+                    kalenderSektion?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="bg-mydealz-orange hover:bg-[#e67700] text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer"
+                >
+                  Noch laufende Kalender ansehen
+                </button>
               </div>
             </div>
 
@@ -842,7 +906,7 @@ export default function Home() {
                   <path fillRule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.6 6.73 6.73 0 0 0 2.743 1.346A6.707 6.707 0 0 1 9.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 0 0-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 0 1-1.112-3.173 6.73 6.73 0 0 0 2.743-1.347 6.753 6.753 0 0 0 6.139-5.6.75.75 0 0 0-.585-.858 47.077 47.077 0 0 0-3.07-.543V2.62a.75.75 0 0 0-.658-.744 49.22 49.22 0 0 0-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 0 0-.657.744Zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 0 1 3.16 5.337a45.6 45.6 0 0 1 2.006-.343v.256Zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 0 1-2.863 3.207 6.72 6.72 0 0 0 .857-3.294Z" clipRule="evenodd" />
                 </svg>
                 <h2 className="text-3xl md:text-4xl font-bold text-white">
-                  Unsere Gewinner 2025
+                  Gewinner 2025
                 </h2>
               </div>
 
@@ -934,6 +998,159 @@ export default function Home() {
                 </div>
               )}
             </div>
+
+            {/* Kalender die nach dem 24.12. noch laufen */}
+            {data.length > 0 && (
+              <div className="mt-8" id="kalender-sektion">
+                <div className="bg-[#1e1f21] rounded-2xl p-6 md:p-8 shadow-xl border border-gray-700">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                    📅 Kalender die noch laufen
+                  </h2>
+                  <p className="text-gray-300 mb-6">
+                    Diese Adventskalender sind auch nach Heiligabend noch aktiv!
+                  </p>
+                  
+                  {favoriteItems.length > 0 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="w-6 h-6 text-[#f97778]"
+                          >
+                            <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                          </svg>
+                          Favoriten
+                        </h3>
+                        <span className="bg-[#f97778] text-white text-sm font-bold px-3 py-1 rounded-full">
+                          {favoriteItems.length}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-5">
+                        {favoriteItems.map((item) => (
+                          <div key={item.name} className="group">
+                            <div className={`bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 ${visited.has(item.name) ? 'border-blue-500/50' : 'border-[#f97778]'} relative h-full flex flex-col`}>
+                              {visited.has(item.name) && (
+                                <div className="absolute top-2 right-2 z-10">
+                                  <span className="bg-blue-500/90 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                                    Besucht
+                                  </span>
+                                </div>
+                              )}
+                              <div className="p-5 flex flex-col grow">
+                                <div className="text-center mb-4">
+                                  <div className="bg-[#f97778] text-white font-bold text-2xl w-14 h-14 rounded-lg flex items-center justify-center shadow-md mx-auto">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      className="w-8 h-8"
+                                    >
+                                      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                                {item.kategorie && (
+                                  <div className="text-center mb-3">
+                                    <span className="inline-block bg-[#1e1f21] text-gray-300 text-xs font-semibold px-3 py-1 rounded-full border border-gray-600">
+                                      {item.kategorie}
+                                    </span>
+                                  </div>
+                                )}
+                                <h3 className="text-center text-white font-semibold text-sm mb-4 min-h-10 line-clamp-2 grow">
+                                  {item.name}
+                                </h3>
+                                <div className="space-y-2">
+                                  <a
+                                    href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => markAsVisited(item.name)}
+                                    className="w-full bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg block text-center"
+                                  >
+                                    Öffnen
+                                  </a>
+                                  <button
+                                    onClick={() => toggleFavorite(item.name)}
+                                    className="w-full bg-[#1e1f21] hover:bg-[#2d2d2d] text-[#f97778] font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm border border-[#f97778]"
+                                  >
+                                    Aus Favoriten
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {normalItems.length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-4">
+                        Alle Kalender
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-5">
+                        {normalItems.map((item, index) => (
+                          <div key={index} className="group">
+                            <div className={`bg-[#2d2d2d] hover:bg-[#3a3a3a] rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border relative h-full flex flex-col ${
+                              visited.has(item.name) ? 'border-2 border-blue-500/50' : 'border border-gray-700/50'
+                            }`}>
+                              {visited.has(item.name) && (
+                                <div className="absolute top-2 right-2 z-10">
+                                  <span className="inline-flex items-center gap-1 bg-blue-500/90 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                                      <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+                                    </svg>
+                                    Besucht
+                                  </span>
+                                </div>
+                              )}
+                              <div className="p-5 flex flex-col grow">
+                                <div className="text-center mb-4">
+                                  <div className="bg-mydealz-orange text-white font-bold text-2xl w-14 h-14 rounded-lg flex items-center justify-center shadow-md mx-auto">
+                                    {favoriteItems.length + index + 1}
+                                  </div>
+                                </div>
+                                {item.kategorie && (
+                                  <div className="text-center mb-3">
+                                    <span className="inline-block bg-[#1e1f21] text-gray-300 text-xs font-semibold px-3 py-1 rounded-full border border-gray-600">
+                                      {item.kategorie}
+                                    </span>
+                                  </div>
+                                )}
+                                <h3 className="text-center text-white font-semibold text-sm mb-4 min-h-10 line-clamp-2 grow">
+                                  {item.name}
+                                </h3>
+                                <div className="space-y-2">
+                                  <a
+                                    href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => markAsVisited(item.name)}
+                                    className="w-full bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg block text-center"
+                                  >
+                                    Öffnen
+                                  </a>
+                                  <button
+                                    onClick={() => toggleFavorite(item.name)}
+                                    className="w-full bg-[#1e1f21] hover:bg-[#2d2d2d] text-gray-300 hover:text-[#f97778] font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm border border-gray-600 hover:border-[#f97778] cursor-pointer"
+                                  >
+                                    Zu Favoriten
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -1170,7 +1387,9 @@ export default function Home() {
             </div>
           </>
         )}
-
+          </>
+        )}
+        
         {/* hej-julian: Footer mit mydealz-Link und Schnee-Toggle */}
         {/* julian edit: Fester Abstand zum Content */}
         <div className="mt-12 text-center bg-[#1e1f21] rounded-2xl shadow-md p-6 border border-gray-700">
@@ -1199,6 +1418,11 @@ export default function Home() {
                 Dealsharer
               </a>
             </p>
+            {standDatum && (
+              <p className="text-gray-500 text-xs mt-2">
+                📅 Stand: {standDatum}
+              </p>
+            )}
             <div className="mt-4 pt-4 border-t border-gray-600">
               <button
                 onClick={toggleSnow}
@@ -1221,8 +1445,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        </>
-        )}
       </div>
 
       {/* hej-julian: Toast-Benachrichtigungen unten rechts */}
