@@ -43,6 +43,8 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false); // "Alle öffnen" Modal
   const [showFavoritesModal, setShowFavoritesModal] = useState(false); // "Alle Favs öffnen" Modal
   const [showGewinnerModal, setShowGewinnerModal] = useState(false); // hej-julian added: Gewinner-Modal
+  const [showNoteModal, setShowNoteModal] = useState(false); // Note/Kommentar Modal
+  const [currentNote, setCurrentNote] = useState<{ name: string; note: string } | null>(null); // Aktuell angezeigte Note
   
   // User-Interaktionen mit LocalStorage-Persistierung
   const [favorites, setFavorites] = useState<Set<string>>(new Set()); // Favoriten-Liste
@@ -67,7 +69,6 @@ export default function Home() {
   // Am 24.12. werden nur noch Gewinner angezeigt mit Danksagung
   const isChristmasEve2025 = () => {
     const today = new Date();
-    console.log(); // TODO julian: console.log entfernen vor Production
     return today.getDate() === 24 && today.getMonth() === 11 && today.getFullYear() === 2025;
   };
 
@@ -1063,21 +1064,42 @@ export default function Home() {
                                   {item.name}
                                 </h3>
                                 <div className="space-y-2">
-                                  <a
-                                    href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={() => markAsVisited(item.name)}
-                                    className="w-full bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg block text-center"
-                                  >
-                                    Öffnen
-                                  </a>
-                                  <button
-                                    onClick={() => toggleFavorite(item.name)}
-                                    className="w-full bg-[#1e1f21] hover:bg-[#2d2d2d] text-[#f97778] font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm border border-[#f97778]"
-                                  >
-                                    Aus Favoriten
-                                  </button>
+                                  {item.note && item.note !== "" && (
+                                    <button
+                                      onClick={() => {
+                                        setCurrentNote({ name: item.name, note: item.note });
+                                        setShowNoteModal(true);
+                                      }}
+                                      className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm border border-gray-600 flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                      💬 Info
+                                    </button>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <a
+                                      href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={() => markAsVisited(item.name)}
+                                      className="flex-1 bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg text-center"
+                                    >
+                                      Öffnen
+                                    </a>
+                                    <button
+                                      onClick={() => toggleFavorite(item.name)}
+                                      className="bg-[#f97778] hover:bg-[#e66667] text-white font-semibold p-2.5 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+                                      aria-label="Aus Favoriten entfernen"
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="w-5 h-5"
+                                      >
+                                        <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                                      </svg>
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -1125,21 +1147,63 @@ export default function Home() {
                                   {item.name}
                                 </h3>
                                 <div className="space-y-2">
-                                  <a
-                                    href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={() => markAsVisited(item.name)}
-                                    className="w-full bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg block text-center"
-                                  >
-                                    Öffnen
-                                  </a>
-                                  <button
-                                    onClick={() => toggleFavorite(item.name)}
-                                    className="w-full bg-[#1e1f21] hover:bg-[#2d2d2d] text-gray-300 hover:text-[#f97778] font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm border border-gray-600 hover:border-[#f97778] cursor-pointer"
-                                  >
-                                    Zu Favoriten
-                                  </button>
+                                  {item.note && item.note !== "" && (
+                                    <button
+                                      onClick={() => {
+                                        setCurrentNote({ name: item.name, note: item.note });
+                                        setShowNoteModal(true);
+                                      }}
+                                      className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm border border-gray-600 flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                      💬 Info
+                                    </button>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <a
+                                      href={item.link.startsWith("http") ? item.link : `https://${item.link}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={() => markAsVisited(item.name)}
+                                      className="flex-1 bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg text-center"
+                                    >
+                                      Öffnen
+                                    </a>
+                                    <button
+                                      onClick={() => toggleFavorite(item.name)}
+                                      className={`font-semibold p-2.5 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center ${
+                                        favorites.has(item.name)
+                                          ? "bg-[#f97778] hover:bg-[#e66667] text-white"
+                                          : "bg-[#1e1f21] hover:bg-[#2d2d2d] text-[#f97778] border border-gray-600 hover:border-[#f97778]"
+                                      }`}
+                                      aria-label={favorites.has(item.name) ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"}
+                                    >
+                                      {favorites.has(item.name) ? (
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 24 24"
+                                          fill="currentColor"
+                                          className="w-5 h-5"
+                                        >
+                                          <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                                        </svg>
+                                      ) : (
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                          strokeWidth="1.5"
+                                          stroke="currentColor"
+                                          className="w-5 h-5"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                                          />
+                                        </svg>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -1459,6 +1523,41 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      {/* Note/Kommentar Modal */}
+      {showNoteModal && currentNote && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowNoteModal(false)}>
+          <div className="bg-[#1e1f21] rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-700" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-1">{currentNote.name}</h3>
+                  <p className="text-sm text-gray-400">Zusätzliche Information</p>
+                </div>
+                <button
+                  onClick={() => setShowNoteModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                    <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+              <div className="bg-[#2d2d2d] rounded-lg p-4 border border-gray-700">
+                <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">{currentNote.note}</p>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowNoteModal(false)}
+                  className="bg-mydealz-green hover:bg-[#1e8a00] text-white font-bold py-2 px-6 rounded-lg transition-all duration-200"
+                >
+                  Schließen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
