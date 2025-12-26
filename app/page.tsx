@@ -66,10 +66,12 @@ export default function Home() {
   const toastTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // hej-julian: Spezielle Ansicht für Heiligabend 2025
-  // Am 24.12. werden nur noch Gewinner angezeigt mit Danksagung
+  // Vom 25.12.2025 bis 30.11.2026 werden nur noch Gewinner angezeigt mit Danksagung
   const isChristmasEve2025 = () => {
     const today = new Date();
-    return today.getDate() === 24 && today.getMonth() === 11 && today.getFullYear() === 2025;
+    const startDate = new Date(2025, 11, 25); // 25.12.2025 (Monat ist 0-indiziert)
+    const endDate = new Date(2026, 10, 30, 23, 59, 59); // 30.11.2026 23:59:59
+    return today >= startDate && today <= endDate;
   };
 
   // Initialisierung - lädt alle gespeicherten User-Präferenzen
